@@ -9,7 +9,7 @@ from aws_cdk import (
 
 class ApiLambdaCrudDynamoDBStack(core.Stack):
 
-    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+    def __init__(self, scope: core.Stack, id: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
         # create a dynamo db table
@@ -39,6 +39,7 @@ class ApiLambdaCrudDynamoDBStack(core.Stack):
             self, 'createItemFunction',
             code=_lambda.AssetCode('api'),
             handler='create.handler',
+            runtime=_lambda.Runtime.PYTHON_3_7,
             environment={
                 "TABLE_NAME": dynamo_table.table_name,
                 "PRIMARY_KEY": 'itemID'
