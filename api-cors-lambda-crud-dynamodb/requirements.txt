@@ -1,4 +1,3 @@
--e git+git@github.com:tomomano/aws-cdk-dojo.git@2cbc054ae059aaf8d7633cd2f13a417e4d6f9c38#egg=api_cors_lambda_crud_dynamodb&subdirectory=api-cors-lambda-crud-dynamodb
 attrs==19.1.0
 aws-cdk.assets==1.6.1
 aws-cdk.aws-apigateway==1.6.1

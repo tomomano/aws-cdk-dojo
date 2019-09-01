@@ -2,6 +2,17 @@
 # APIGateway with CORS, Lambdas, and CRUD on DynamoDB
 Original TypeScript code: https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript/api-cors-lambda-crud-dynamodb
 
+This is essentially a Python implementation of the above code.
+
+## Build
+```bash
+python3 -m venv .env
+source .env/bin/activate
+pip install -r requirements.txt
+```
+
+## Deploy
+
 
 ## Structure
   * `app.py`: This will be the main entry point of the app.
