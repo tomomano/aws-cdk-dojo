@@ -4,23 +4,24 @@ import boto3
 TABLE_NAME = os.environ.get('TABLE_NAME', '')
 PRIMARY_KEY = os.environ.get('PRIMARY_KEY', '')
 
+
 def handler(event, context):
 
     try:
         path_parameters = event.get("pathParameters", None)
         if path_parameters is None:
-            raise ValueError("Error: You are missing the path parameter id")
+            raise ValueError("invalid request, you are missing the path parameter id")
         
         req_item_id = path_parameters.get("id", None)
         if req_item_id is None:
-            raise ValueError("Error: You are missing the path parameter id")
+            raise ValueError("invalid request, you are missing the path parameter id")
         
         ddb = boto3.resource('dynamodb')
         table = ddb.Table(TABLE_NAME)
-        response = table.get_item(Key={ PRIMARY_KEY: req_item_id })
+        response = table.delete_item(Key={ PRIMARY_KEY: req_item_id })
 
         status_code = 200
-        resp = response['Item']
+        resp = {"description": "Successfully deleted."}
     
     except ValueError as e:
         status_code = 400

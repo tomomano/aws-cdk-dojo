@@ -8,7 +8,7 @@ PRIMARY_KEY = os.environ.get('PRIMARY_KEY', '')
 def handler(event, context):
     
     try:
-        body = event["body"]
+        body = event.get("body", None)
         if body is None:
             raise ValueError("invalid request, you are missing the parameter body")
         
@@ -19,10 +19,15 @@ def handler(event, context):
         table = ddb.Table(TABLE_NAME)
         response = table.put_item(Item=item)
 
-        status_code = 200
+        status_code = 201
         resp = response['Item']
+    
+    except ValueError as e:
+        status_code = 400
+        resp = {"description": f"Bad request. {str(e)}"}
+    
     except Exception as e:
-        status_code = 401
+        status_code = 500
         resp = {"description": str(e)}
     
     return { "statusCode": status_code, "body": json.dumps(resp) }
