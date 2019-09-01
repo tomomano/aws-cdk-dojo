@@ -88,7 +88,7 @@ class ApiLambdaCrudDynamoDBStack(core.Stack):
         # create apigateway
         api = apigw.RestApi(
             self, 'itemsApi',
-            rest_api_name="Items Service" # A name for the API Gateway RestApi resource
+            rest_api_name="Items Service"
         )
 
         # create a resource

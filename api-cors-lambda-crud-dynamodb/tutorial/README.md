@@ -2,13 +2,14 @@
 # APIGateway with CORS, Lambdas, and CRUD on DynamoDB
 Original TypeScript code: https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript/api-cors-lambda-crud-dynamodb
 
+This is essentially a Python implementation of the above code.
 
 ## Structure
   * `app.py`: This will be the main entry point of the app.
   * `api_cors_lambda_crud_dynamodb_stack.py`: This is the main stack of the app.
   * `api/`: This is where lambda function handlers are defined.
 
-## Commands
+## Frequently used command list
 Set the account which you use to deploy the service:
 ```
 $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
@@ -30,19 +31,18 @@ Clean up:
 cdk destroy
 ```
 
-## APIs
-Post an object:
+## Tutorial
+
+### Initialize a project
+Create a new directory where you will build your project:
 ```bash
-curl https://{APIGATEWAY ADDRESS}/prod/items -X POST -H "Content-Type: application/json" -d '{"name": "bob"}'
+$ mkdir api-cors-lambda-crud-dynamodb
 ```
 
-
-## Steps
-
-### cdk initreturn { "statusCode": status_code, "body": json.dumps(resp) }
-Create a new CDK project:
+`cd` into it and initialize a CDK project:
 ```bash
-cdk init app --language python
+$ cd api-cors-lambda-crud-dynamodb
+$ cdk init app --language python
 ```
 This command will create a directory named `api_cors_lambda_crud_dynamodb_stack`. Delete it, since we do not need it for now.
 
@@ -58,7 +58,7 @@ pip install aws-cdk.aws-lambda aws-cdk.aws-apigateway aws-cdk.aws-dynamodb
 ```
 
 ### Create app.py
-Copy and paste the following code in `app.py`:
+Copy and paste the following code in `app.py`.
 ```python
 from aws_cdk import core
 
@@ -70,10 +70,12 @@ ApiLambdaCrudDynamoDBStack(app, "ApiLambdaCrudDynamoDBExample", env={'region': '
 app.synth()
 ```
 
+This will be the entry point of your CDK app. As you can see, we are adding `ApiLambdaCrudDynamoDBStack` to our app.
+
 Below, we will create `ApiLambdaCrudDynamoDBExample` stack!
 
 ### Create api_stack.py
-Create a new python file named `api_stack.py` and open it.
+Create a new python file named `api_stack.py` and open it with your editor.
 
 First, import cdk libraries that will be used in this stack:
 ```python
@@ -110,13 +112,12 @@ dynamo_table = ddb.Table(
 )
 ```
 
-Now, to check everything has been working correctly so far, try deploying the stack by `cdk deploy` command. Go to the AWS Console, and check that a new DynamoDB table was actually created.
-
+Now, to check everything has been working correctly so far, try deploying the stack by `cdk deploy` command. Go to the AWS Console, and confirm that a new DynamoDB table was actually created.
 
 ### Implementing POST method
 
 #### Create a lambda function
-Next, we will create a POST API unser `/items`.
+Next, we will create a `POST` API under `/items`.
 
 First, create a new directory named `api/`. In there, create a lambda function handler named `create.py`, and paste the following code:
 ```python
@@ -142,7 +143,7 @@ def handler(event, context):
         response = table.put_item(Item=item)
 
         status_code = 201
-        resp = response['Item']
+        resp = {}
     
     except ValueError as e:
         status_code = 400
@@ -155,7 +156,7 @@ def handler(event, context):
     return { "statusCode": status_code, "body": json.dumps(resp) }
 ```
 
-Then, define a Lambda function constructor for this function:
+Then, in `ApiLambdaCrudDynamoDBStack`, define a Lambda function constructor for this function:
 ```python
 # inside __init__()
 create_one = _lambda.Function(
@@ -170,7 +171,7 @@ create_one = _lambda.Function(
 )
 ```
 
-Lastly, do not forget to grant permission for this lambda function so that it can manipulate DynamoDB:
+Grant permission for this lambda function so that it can manipulate DynamoDB:
 ```python
 dynamo_table.grant_read_write_data(create_one)
 ```
@@ -182,7 +183,7 @@ First, create a new API Gateway constructor:
 ```python
 api = apigw.RestApi(
    self, 'itemsApi',
-   rest_api_name="Items Service" # A name for the API Gateway RestApi resource
+   rest_api_name="Items Service"
 )
 ```
 Then create a new resource:
