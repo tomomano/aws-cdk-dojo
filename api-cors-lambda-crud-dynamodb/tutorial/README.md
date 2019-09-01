@@ -1,8 +1,9 @@
 
-# APIGateway with CORS, Lambdas, and CRUD on DynamoDB
+# Tutorial
+
 Original TypeScript code: https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript/api-cors-lambda-crud-dynamodb
 
-This is essentially a Python implementation of the above code.
+This is essentially a Python implementation of the above code. Below, I will explain, step-by-step, how to build this AWS app.
 
 ## Structure
   * `app.py`: This will be the main entry point of the app.
