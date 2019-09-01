@@ -27,5 +27,6 @@ cattrs==0.9.0
 jsii==0.15.2
 publication==0.0.3
 python-dateutil==2.8.0
+simplejson==3.16.0
 six==1.12.0
 typing-extensions==3.7.4

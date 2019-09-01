@@ -1,4 +1,5 @@
-import json, os
+import simplejson as json # simple json resolves the common error "Object of type Decimal is not JSON serializable"
+import os
 import boto3
 
 TABLE_NAME = os.environ.get('TABLE_NAME', '')

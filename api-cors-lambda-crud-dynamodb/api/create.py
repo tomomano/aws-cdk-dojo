@@ -1,4 +1,5 @@
-import json, os
+import simplejson as json
+import os
 import uuid
 import boto3
 
@@ -20,7 +21,7 @@ def handler(event, context):
         response = table.put_item(Item=item)
 
         status_code = 201
-        resp = response['Item']
+        resp = {}
     
     except ValueError as e:
         status_code = 400

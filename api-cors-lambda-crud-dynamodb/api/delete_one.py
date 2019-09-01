@@ -1,4 +1,5 @@
-import json, os
+import simplejson as json
+import os
 import boto3
 
 TABLE_NAME = os.environ.get('TABLE_NAME', '')
