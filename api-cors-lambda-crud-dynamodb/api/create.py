@@ -1,5 +1,4 @@
-import simplejson as json
-import os
+import json, os
 import uuid
 import boto3
 
