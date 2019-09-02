@@ -3,9 +3,9 @@
 
 Original TypeScript code: https://github.com/aws-samples/aws-cdk-examples/tree/master/typescript/api-cors-lambda-crud-dynamodb
 
-This is essentially a Python implementation of the above code. Below, I will explain, step-by-step, how to build this AWS app.
+This is essentially a Python implementation of the above code, with some minor modifications. I was a bit lazy and did not implement the CORS part (at least yet). Below, I will explain, step-by-step, how to build this AWS app.
 
-## Structure
+## Project structure
   * `app.py`: This will be the main entry point of the app.
   * `api_cors_lambda_crud_dynamodb_stack.py`: This is the main stack of the app.
   * `api/`: This is where lambda function handlers are defined.
@@ -17,22 +17,7 @@ $ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 $ export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
 ```
 
-Synthesize:
-```
-cdk synth
-```
-
-Deploy:
-```
-cdk deploy
-```
-
-Clean up:
-```
-cdk destroy
-```
-
-## Tutorial
+## Now, let's start coding!
 
 ### Initialize a project
 Create a new directory where you will build your project:
