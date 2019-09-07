@@ -6,7 +6,7 @@ with open("README.md") as fp:
 
 
 setuptools.setup(
-    name="api_cors_lambda_crud_dynamodb",
+    name="ecs_simple_web_app",
     version="0.0.1",
 
     description="An empty CDK Python app",
@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    #package_dir={"": "api_cors_lambda_crud_dynamodb"},
-    #packages=setuptools.find_packages(where="api_cors_lambda_crud_dynamodb"),
+    #package_dir={"": "ecs_simple_web_app"},
+    #packages=setuptools.find_packages(where="ecs_simple_web_app"),
 
     install_requires=[
         "aws-cdk.core",

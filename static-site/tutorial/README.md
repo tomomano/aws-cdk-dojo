@@ -44,7 +44,7 @@ Create a new directory where you will build your project:
 ```bash
 $ mkdir static-site
 $ cd static-site
-$ cdk init app --language python
+$ cdk init app --language=python
 ```
 This command will create a directory named `static-site`. Delete it, since we do not need it for now.
 

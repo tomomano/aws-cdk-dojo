@@ -28,7 +28,7 @@ $ mkdir api-cors-lambda-crud-dynamodb
 `cd` into it and initialize a CDK project:
 ```bash
 $ cd api-cors-lambda-crud-dynamodb
-$ cdk init app --language python
+$ cdk init app --language=python
 ```
 This command will create a directory named `api_cors_lambda_crud_dynamodb_stack`. Delete it, since we do not need it for now.
 
