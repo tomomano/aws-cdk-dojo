@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    package_dir={"": "static_site"},
-    packages=setuptools.find_packages(where="static_site"),
+    #package_dir={"": "static_site"},
+    #packages=setuptools.find_packages(where="static_site"),
 
     install_requires=[
         "aws-cdk.core",

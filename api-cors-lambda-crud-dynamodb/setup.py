@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    package_dir={"": "api_cors_lambda_crud_dynamodb"},
-    packages=setuptools.find_packages(where="api_cors_lambda_crud_dynamodb"),
+    #package_dir={"": "api_cors_lambda_crud_dynamodb"},
+    #packages=setuptools.find_packages(where="api_cors_lambda_crud_dynamodb"),
 
     install_requires=[
         "aws-cdk.core",
