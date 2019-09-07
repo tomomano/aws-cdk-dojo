@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    package_dir={"": "ecs_simple_web_app"},
-    packages=setuptools.find_packages(where="ecs_simple_web_app"),
+    #package_dir={"": "ecs_simple_web_app"},
+    #packages=setuptools.find_packages(where="ecs_simple_web_app"),
 
     install_requires=[
         "aws-cdk.core",

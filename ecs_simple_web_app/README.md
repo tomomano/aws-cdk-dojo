@@ -1,4 +1,4 @@
-# ECS Simple Web app
+# ECS Simple Web App
 
 Original TypeScript code: https://aws.amazon.com/blogs/compute/getting-started-with-the-aws-cloud-development-kit-for-amazon-ecs/
 
