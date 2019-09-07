@@ -292,6 +292,6 @@ Now, your application stack is complete. Run
 cdk deploy
 ```
 
-Once deployment is complete (which will take several minutes), try to access the `ExternalDNS` using your browser. You will see a nice message with random greeting and name, which will change each time you refresh the page!
+Once deployment is complete (which will take several minutes), try to access the `ExternalDNS` (which will be shown in the output of cdk deploy) using your browser. You will see a nice message with random greeting and name, which will change each time you refresh the page!
 
 ![Result](imgs/result.png)
