@@ -1,8 +1,8 @@
 # AWS CDK Dojo
 
-This is a collection of example projects using AWS CDK. These projects are intended for those who are getting started with AWS CDK and looking for concrete and realistic examples to build their own app. All stacks are written in Python.
+This is a collection of example projects using AWS CDK. These projects are intended for those who are getting started with AWS CDK and looking for concrete and realistic examples to build their own app. All stacks are written in **Python**.
 
-Some of the projects are re-implementation of the [official aws-cd-examples repository](https://github.com/aws-samples/aws-cdk-examples) using Python (original code in TypeScript).
+Some of the projects are re-implementation of the [official aws-cdk-examples repository](https://github.com/aws-samples/aws-cdk-examples) using Python (original code in TypeScript).
 
 Other projects are my original, with inspirations from other online tutorials.
 
