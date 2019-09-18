@@ -1,58 +1,41 @@
+# ECS task execution with Lambda and S3
+This project was inspired by [this blog](https://serverless.com/blog/serverless-application-for-long-running-process-fargate-lambda/) from serverless.com.
 
-# Welcome to your CDK Python project!
+I implemented a very similar type of ECS application explained in the above link, using AWS CDK on Python.
 
-This is a blank project for Python development with CDK.
-
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
-
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the .env
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
-
+## Build
+```bash
+python3 -m venv .env
+source .env/bin/activate
+pip install -r requirements.txt
 ```
-$ python3 -m venv .env
+Synthesize the CloudFormation template by
+```bash
+cdk synth
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
-
+## Deploy
+(Optional) Set the account which you use to deploy the service:
+```bash
+$ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+$ export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
 ```
-$ source .env/bin/activate
-```
-
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .env\Scripts\activate.bat
+To deploy the app, run
+```bash
+cdk deploy
 ```
 
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
-```
-
-At this point you can now synthesize the CloudFormation template for this code.
-
-```
-$ cdk synth
+When you are done with the app, do not forget to destroy it:
+```bash
+cdk destroy
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+## Test
+The stack will create a S3 bucket, whose name should begin with `s3-lambda-ecs-databucket`. Upload a random .mp4 movie to it, and wait a minute or two. Refresh your S3 console, and you should find that a thumbanil of the movie (with file name `<movie base name>.png` was created for you!
 
-# Useful commands
+If you want to see how the process is running, go to the ECS console and find a cluster named `thumb-cluster`.
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!
+## Project structure
+  * `app.py`: This will be the main entry point of the app.
+  * `my_stack.py`: An application stack is defined here.
+  * `lambda/lambda_funcs.py`: Lambda function handlers are defined here.
