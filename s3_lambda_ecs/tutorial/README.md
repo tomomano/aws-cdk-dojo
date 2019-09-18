@@ -1,6 +1,6 @@
 # Tutorial
 
-This project was inspired by [this awesome tutorial](https://serverless.com/blog/serverless-application-for-long-running-process-fargate-lambda/) from serverless.com.
+This project was inspired by [this blog](https://serverless.com/blog/serverless-application-for-long-running-process-fargate-lambda/) from serverless.com.
 
 I implemented a very similar type of ECS application explained in the above link, using AWS CDK on Python.
 
