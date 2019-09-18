@@ -6,7 +6,7 @@ Some of the projects are re-implementation of the [official aws-cd-examples repo
 
 Other projects are my original, with inspirations from other online tutorials.
 
-**Dojo** stands for "training gym" in Japanese 👊.
+**Dojo** stands for "training gym" in Japanese :punch:
 
 ## Projects
 
@@ -26,7 +26,4 @@ If you would like to learn how to build the program from scrach, a brief step-by
 The project here are just examples for learning, and not at all intended for production.
 
 ## Contact me
-If you have any questions or find any bugs, please submit an issue 😎  &#1F601
-
-
-:smile:
+If you have any questions or find any bugs, please submit an issue :wink:
