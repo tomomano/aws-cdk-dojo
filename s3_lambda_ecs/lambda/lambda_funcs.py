@@ -1,12 +1,13 @@
 import os
 import boto3
+import json
 
-ECS_CLUSTER_NAME = os.environ["ECS_CLUSTER_NAME"]
-ECS_TASK_DEFINITION = os.environ["ECS_TASK_DEFINITION"]
-ECS_TASK_VPC_SUBNET_1 = os.environ["ECS_TASK_VPC_SUBNET_1"]
-ECS_TASK_VPC_SUBNET_2 = os.environ["ECS_TASK_VPC_SUBNET_2"]
-OUTPUT_S3_PATH = os.environ["OUTPUT_S3_PATH"]
-OUTPUT_S3_AWS_REGION = os.environ["OUTPUT_S3_AWS_REGION"]
+ECS_CLUSTER_NAME = os.environ.get("ECS_CLUSTER_NAME")
+ECS_TASK_DEFINITION = os.environ.get("ECS_TASK_DEFINITION")
+ECS_TASK_VPC_SUBNET_1 = os.environ.get("ECS_TASK_VPC_SUBNET_1")
+ECS_TASK_VPC_SUBNET_2 = os.environ.get("ECS_TASK_VPC_SUBNET_2")
+OUTPUT_S3_PATH = os.environ.get("OUTPUT_S3_PATH")
+OUTPUT_S3_AWS_REGION = os.environ.get("OUTPUT_S3_AWS_REGION")
 
 def trigger_on_upload_video(event, context):
 
@@ -18,6 +19,14 @@ def trigger_on_upload_video(event, context):
     frame_pos = '00:02' # we use constant value here for demonstration
 
     run_thumbnail_generate_task(s3_video_url, thumbnail_file, frame_pos)
+
+def trigger_on_thumbnail_creation(event, context):
+
+    bucket = event['Records'][0]['s3']['bucket']['name']
+    key = event['Records'][0]['s3']['object']['key']
+
+    print(json.dumps(event))
+    print(f"A new thumbnail file was generated at 'https://s3.amazonaws.com/{bucket}/{key}'.")
 
 def run_thumbnail_generate_task(s3_video_url, thumbnail_file, frame_pos):
     

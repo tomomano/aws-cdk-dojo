@@ -15,8 +15,8 @@ setuptools.setup(
 
     author="author",
 
-    package_dir={"": "s3_lambda_ecs"},
-    packages=setuptools.find_packages(where="s3_lambda_ecs"),
+    #package_dir={"": "s3_lambda_ecs"},
+    #packages=setuptools.find_packages(where="s3_lambda_ecs"),
 
     install_requires=[
         "aws-cdk.core",

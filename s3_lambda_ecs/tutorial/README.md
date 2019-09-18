@@ -1,7 +1,25 @@
+# Tutorial
+
+This project was inspired by [this awesome tutorial](https://serverless.com/blog/serverless-application-for-long-running-process-fargate-lambda/) from serverless.com.
+
+I implemented a very similar type of ECS application explained in the above link, using AWS CDK on Python.
+
+## Project structure
+  * `app.py`: This will be the main entry point of the app.
+  * `my_stack.py`: An application stack is defined here.
+  * `lambda/lambda_funcs.py`: Lambda function handlers are defined here.
+
+## Frequently used command list
+Set the account which you use to deploy the service:
+```
+$ export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+$ export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
+```
+
 ## Now, let's start coding!
 
 ### Initialize a project
-Create a new directory where you will build your project:
+Create a new directory where we will build our new project:
 ```bash
 $ mkdir s3_lambda_ecs
 ```
@@ -13,7 +31,7 @@ $ cdk init app --language=python
 ```
 This command will create a directory named `s3_lambda_ecs`. Delete it, since we do not need it for now.
 
-Then install dependencies by pip:
+Then install Python dependencies by pip:
 ```bash
 source .env/bin/activate
 pip install -r requirements.txt
@@ -21,11 +39,10 @@ pip install -r requirements.txt
 
 ### Install additional aws-cdk modules
 ```bash
-pip install aws-cdk.aws-lambda aws-cdk.aws-dynamodb aws-cdk.aws-s3 aws_cdk.aws_ecs aws_cdk.aws_ec2
+pip install aws-cdk.aws-lambda aws-cdk.aws-dynamodb aws-cdk.aws-s3 aws_cdk.aws_ecs aws_cdk.aws_ec2 aws_cdk.aws_lambda_event_sources
 ```
 
 ### Create app.py
-
 Copy and paste the following code in `app.py`.
 ```python
 import os
@@ -44,20 +61,23 @@ MyStack(
 
 app.synth()
 ```
-This will be the entry point of our AWS application stack. Below, we will construct `MyStack` stack.
+This will be the entry point of our AWS application stack. Below, we will construct `MyStack` stack. As you can see, we will deploy our service in `us-east-1` region. Change it if necessary.
 
 ### Create my_stack.py
 Create a file named `my_stack.py`. First, let's import python modules that we will use in the stack:
-```
+```python
 from aws_cdk import (
     core,
     aws_s3 as s3,
     aws_ec2 as ec2,
-    aws_ecs as ecs
+    aws_ecs as ecs,
+    aws_iam as iam,
+    aws_lambda as _lambda,
+    aws_lambda_event_sources as esources
 )
 ```
 
-To initialize our stack, copy and paste the following code.
+Let's initialize our stack:
 ```python
 class MyStack(core.Stack):
 
@@ -66,7 +86,7 @@ class MyStack(core.Stack):
 ```
 
 ### Create a S3 bucket
-Next, we prepare a S3 bucket to upload data. Add the following lines to `MyStack`:
+Now, we prepare a S3 bucket to upload data. Add the following lines to `MyStack`:
 ```python
 # prepare a S3 bucket to upload data
 bucket = s3.Bucket(
@@ -102,7 +122,8 @@ thumb_task_def = ecs.FargateTaskDefinition(
     cpu=256 # meanining .25 vCPU
 )
 ```
-To allow the container to write data to S3 bucket, we grant a permission:
+
+To allow the container to write data to S3 bucket, we grant a permission to the ECS task role:
 ```python
 # grant PUT operation to S3 bucket
 bucket.grant_write(thumb_task_def.task_role)
@@ -123,7 +144,7 @@ thumb_container.add_port_mappings(
 Here, we specified that the container logs should be forwarded to AWS log driver, so that you can see the log in your CloudWatch console.
 
 ### Check what we have done so far
-To check if everything is working correctly so far, run `cdk deploy` to deploy our current stack.
+To check if everything is working correctly so far, run `cdk deploy` to deploy our stack.
 
 Once deployment finishes, first go to your S3 console, and confirm that an empty new bucket, whose name should start with `s3-lambda-ecs-databucket`, is created.
 
@@ -131,11 +152,11 @@ To do a test run below, we need to upload a random mp4 video. Prepare your own m
 
 Next, go to your ECS console, and confirm that a new cluster named `thumb-cluster` is created. This cluster should be empty now.
 
-Then, in `Task Definition`, you should find an item whose name should start wtih `s3lambdaecsffmpegthumbtaskdefinition`. Open the task definition, and make sure that the properties that we defined (such as CPU limits and port mappings) in our CDK code were indeed reflected here.
+Then, in `Task Definition`, you should find an item whose name should start wtih `s3lambdaecsffmpegthumbtaskdefinition`. Open the task definition, and make sure that the properties that we defined in our CDK code (such as CPU limits and port mappings) were indeed reflected here.
 
-Now, let's run a task from Python code! This Python code will eventually go to the Lambda handler that we will define later.
+Now, let's run a task programatically using Python code! This Python code will eventually go to the Lambda handler that we will define later.
 
-From your local Python interpreter (>3,7) with `boto3` library installed, run the following script. **Remember to replace the values represented as `<XXX>` with your own settins.**
+From your local Python interpreter (>=3.7 recommended) with `boto3` library installed, run the following script. **Remember to replace the values represented as `<XXX>` with your own settins.**
 
 ```python
 import boto3
@@ -195,10 +216,9 @@ Once the container finishes running, go to your S3 console and confirm that a th
 
 ### Building a lambda handler
 
-Now, let's automate the ECS task initiation by creating a Lambda function.
+Now, let's automate what we did above, i.e. running the ECS task automatically by creating a Lambda function.
 
-
-First, prepare environmental variables that we will pass to Lambda:
+First, prepare environmental variables that we will need to pass to Lambda:
 ```python
 on_upload_video_env = {
     "ECS_CLUSTER_NAME": cluster.cluster_name,
@@ -219,6 +239,8 @@ on_upload_video = _lambda.Function(
     environment=on_upload_video_env
 )
 ```
+See `lambda/lambda_functs.py` to see the handler function. It is essentially the same code that we run just before, with some modifications so that it fits in Lambda.
+
 We will need to grant permissions for the Lambda function so that it can access to S3 and ECS.
 ```python
 # grant read permission
@@ -246,89 +268,69 @@ on_upload_video.add_to_role_policy(
     )
 )
 ```
-The bottom two rules regarding task definition's execution role and task role are not intuitive. Indeed, author still do not know why they are necessary. All I know is that Lambda cannot start ECS task without them. For more information, see the following links:
+The bottom two rules regarding `iam:PassRole` of task execution role and task role are not intuitive. Indeed, I (author) still do not know why they are necessary. All I know is that Lambda cannot start ECS task without them. For more information, see the following links:
   * https://lobster1234.github.io/2017/12/03/run-tasks-with-aws-fargate-and-lambda/
   * https://serverfault.com/questions/945596/why-does-aws-lambda-need-to-pass-ecstaskexecutionrole-to-ecs-task
 
-By the way, here is the contents of the Lambda function handler (`lambda/lambda_funcs.py`):
+Let's deploy and test it! Run `cdk deploy`. When deployment is complete, go to your Lambda console. Then, to define a test environment, click `Test` buton on the top-left of the page, and then configure the event. To do so, choose "S3PutEvent" as the event template, and modify the following parts shown below:
+
+![Lambda event configuration](imgs/lambda_event.png)
+
+Once this is created, click `Test` to invoke Lambda function. Then, go to your ECS console and make sure that a new task is running. Finally, go to your S3 and validate that the thumbnail image was created! Nice!!
+
+### Adding S3 upload event
+Now, to automatically invoke the above Lambda function when a file gets uploaded, we add a event lister:
 ```python
-import os
-import boto3
+on_upload_video.add_event_source(
+    esources.S3EventSource(
+        bucket,
+        events=[
+            s3.EventType.OBJECT_CREATED
+        ],
+        filters=[
+            s3.NotificationKeyFilter(suffix=".mp4")
+        ]
+    )
+)
+```
 
-ECS_CLUSTER_NAME = os.environ["ECS_CLUSTER_NAME"]
-ECS_TASK_DEFINITION = os.environ["ECS_TASK_DEFINITION"]
-ECS_TASK_VPC_SUBNET_1 = os.environ["ECS_TASK_VPC_SUBNET_1"]
-ECS_TASK_VPC_SUBNET_2 = os.environ["ECS_TASK_VPC_SUBNET_2"]
-OUTPUT_S3_PATH = os.environ["OUTPUT_S3_PATH"]
-OUTPUT_S3_AWS_REGION = os.environ["OUTPUT_S3_AWS_REGION"]
+Run `cdk deploy` and go to S3 console. Upload a random mp4 video and check that the new event indeed fires a lamunda function (and subsequently ECS task).
 
-def trigger_on_upload_video(event, context):
+### Add another Lambda function...
+To get notification that a thumbnail is generated, let's make another Lambda function.
+
+Add the following handler function to `lambda_funcs.py`:
+```python
+def trigger_on_thumbnail_creation(event, context):
 
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = event['Records'][0]['s3']['object']['key']
 
-    s3_video_url = f"https://s3.amazonaws.com/{bucket}/{key}"
-    thumbnail_file = os.path.splitext(key)[0] + ".png"
-    frame_pos = '00:02' # we use constant value here for demonstration
-
-    run_thumbnail_generate_task(s3_video_url, thumbnail_file, frame_pos)
-
-def run_thumbnail_generate_task(s3_video_url, thumbnail_file, frame_pos):
-    
-    client = boto3.client('ecs')
-
-    response = client.run_task(
-        cluster=ECS_CLUSTER_NAME,
-        taskDefinition=ECS_TASK_DEFINITION,
-        launchType='FARGATE',
-        count=1,
-        platformVersion='LATEST',
-        networkConfiguration={
-            'awsvpcConfiguration': {
-                'subnets': [
-                    ECS_TASK_VPC_SUBNET_1,
-                    ECS_TASK_VPC_SUBNET_2
-                ],
-                'assignPublicIp': 'ENABLED'
-                }
-        },
-        overrides={
-            'containerOverrides': [
-                {
-                    'name': 'ffmpeg-thumb',
-                    'environment': [
-                        {
-                            'name': 'INPUT_VIDEO_FILE_URL',
-                            'value': s3_video_url
-                        },
-                        {
-                            'name': 'OUTPUT_THUMBS_FILE_NAME',
-                            'value': thumbnail_file
-                        },
-                        {
-                            'name': 'POSITION_TIME_DURATION',
-                            'value': frame_pos
-                        },
-                        {
-                            'name': 'OUTPUT_S3_PATH',
-                            'value': OUTPUT_S3_PATH
-                        },
-                        {
-                            'name': 'AWS_REGION',
-                            'value': OUTPUT_S3_AWS_REGION
-                        }
-                    ]
-                }
-            ]
-        }
-    )
+    print(json.dumps(event))
+    print(f"A new thumbnail file was generated at 'https://s3.amazonaws.com/{bucket}/{key}'.")
 ```
 
-Let's deploy and test it!
+Then, register this in Lambda:
+```python
+on_thumb_creation = _lambda.Function(
+    self, 'OnThumbnailCreation',
+    code=_lambda.AssetCode('./lambda'),
+    handler='lambda_funcs.trigger_on_thumbnail_creation',
+    runtime=_lambda.Runtime.PYTHON_3_7,
+)
+on_thumb_creation.add_event_source(
+    esources.S3EventSource(
+        bucket,
+        events=[
+            s3.EventType.OBJECT_CREATED
+        ],
+        rules=[
+            s3.NotificationKeyFilter(prefix="thumb/", suffix=".png")
+        ]
+    )
+)
+```
 
-When deployment is complete, go to your Lambda console. Then, to define a test environment, click `Test` on the top left, and then configure the event. To do so, choose "S3PutEvent" as the event template, and modify the following parts shown below:
+Run `cdk deploy` and upload a random video to the S3 bucket. Then, go to "CloudWatch" > "Logs", and find a entry that begins with `/aws/lambda/s3-lambda-ecs-OnThumbnailCreation`. Go into the log list, and find a line that reads "A new thumbnail file was generated at 'https://s3.amazonaws.com/XXX/YYY".
 
-![Lambda event configuration](imgs/lambda_event.png)
-
-Once this is run, click `Test` to invoke Lambda function. Then, go to your ECS console and make sure that a new task is running. Finally, go to your S3 and validate that the thumbnail image was created!
-
+That's it! We've created a integrated app that combines S3, Lambda and ECS, and defined a automated task runner that processes mp4 videos. All in a `serverless` way!

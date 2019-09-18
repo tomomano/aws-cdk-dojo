@@ -4,7 +4,8 @@ from aws_cdk import (
     aws_ec2 as ec2,
     aws_ecs as ecs,
     aws_iam as iam,
-    aws_lambda as _lambda
+    aws_lambda as _lambda,
+    aws_lambda_event_sources as esources
 )
 
 class MyStack(core.Stack):
@@ -46,14 +47,6 @@ class MyStack(core.Stack):
 
         thumb_container.add_port_mappings(
             ecs.PortMapping(container_port=8081)
-        )
-
-        #create a service
-        thumb_service = ecs.FargateService(
-            self, "thumb-service",
-            cluster=cluster,
-            desired_count=1,
-            task_definition=thumb_task_def
         )
 
         # set environmental variable for this lambda
@@ -98,3 +91,37 @@ class MyStack(core.Stack):
                 actions=['iam:PassRole']
             )
         )
+
+        # add S3 upload event
+        on_upload_video.add_event_source(
+            esources.S3EventSource(
+                bucket,
+                events=[
+                    s3.EventType.OBJECT_CREATED
+                ],
+                filters=[
+                    s3.NotificationKeyFilter(suffix=".mp4")
+                ]
+            )
+        )
+
+        # another lambda
+        on_thumb_creation = _lambda.Function(
+            self, 'OnThumbnailCreation',
+            code=_lambda.AssetCode('./lambda'),
+            handler='lambda_funcs.trigger_on_thumbnail_creation',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+        )
+        on_thumb_creation.add_event_source(
+            esources.S3EventSource(
+                bucket,
+                events=[
+                    s3.EventType.OBJECT_CREATED
+                ],
+                filters=[
+                    s3.NotificationKeyFilter(prefix="thumb/", suffix=".png")
+                ]
+            )
+        )
+
+
