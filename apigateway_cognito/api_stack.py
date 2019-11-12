@@ -2,13 +2,23 @@ from aws_cdk import (
     core,
     aws_lambda as _lambda,
     aws_dynamodb as ddb,
-    aws_apigateway as apigw
+    aws_apigateway as apigw,
+    aws_cognito as cognito
 )
 
 class ApigatewayCognitoStack(core.Stack):
 
     def __init__(self, scope: core.App, id: str, cognito_arn: str, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
+
+        # create Cognito user pool
+        user_pool = cognito.UserPool(
+            self, "testUserPool",
+            auto_verified_attributes=[cognito.UserPoolAttribute.EMAIL],
+            sign_in_type=cognito.SignInType.EMAIL
+        )
+        cfn_user_pool = user_pool.node.default_child
+        cfn_user_pool.policies = 
 
         # create REST API resource
         api = apigw.RestApi(self, 'my_API')

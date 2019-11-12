@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ## Install aws-cdk modules
 ```bash
-pip install aws-cdk.aws-lambda aws-cdk.aws-apigateway aws-cdk.aws-dynamodb
+pip install aws-cdk.aws-lambda aws-cdk.aws-apigateway aws-cdk.aws-dynamodb aws_cognito
 ```
 
 ## Create app.py
@@ -145,6 +145,7 @@ Insert the following lines:
 # Cognito authorizer
 cfn_authorizer = apigw.CfnAuthorizer(
    self, "my_cognito",
+   name='API_authorizer',
    type='COGNITO_USER_POOLS',
    identity_source='method.request.header.Authorization',
    rest_api_id=api.rest_api_id,
