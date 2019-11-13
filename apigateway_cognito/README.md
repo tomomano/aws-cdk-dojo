@@ -1,51 +1,56 @@
 
-# Welcome to your CDK Python project!
+# APIGateway with Cognito Authorizer
 
-This is a blank project for Python development with CDK.
+This stack shows an example to control access to a REST API using Amazon Cognito user pools as authorizer
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+Refs:
+  * https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-integrate-with-cognito.html
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the .env
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
 
-To manually create a virtualenv on MacOS and Linux:
+## Requirements
 
-```
-$ python3 -m venv .env
-```
+* Python (>=3.7)
+* AWS CDK (>=1.15)
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+## Install 
 
-```
-$ source .env/bin/activate
+```python
+python3 -m venv .env # or, python3.7 -m venv .env if default python is not 3.7
+source .env/bin/activate
+pip install -r requirements.txt
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
+## Build
+Synthesize the CloudFormation template by
 
-```
-% .env\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
-
-```
-$ pip install -r requirements.txt
+```bash
+cdk synth
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+## Deploy
+(Optional) Set the account which you use to deploy the service:
 
-```
-$ cdk synth
+```bash
+export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
+export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
 ```
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+To deploy the app, run
+
+```bash
+cdk deploy
+```
+
+## Clean up
+When you're done with the stack, clean it up by
+```bash
+cdk destroy
+```
+
+## Test
+
+
+
 
 # Useful commands
 
