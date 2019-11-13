@@ -227,7 +227,7 @@ You can do it in either in the web browser GUI or from the command line. Below I
 
 (coming soon)
 
-### Command line
+#### Command line
 
 Make sure that you have installed `AWS CLI` and set up correct credentials.
 

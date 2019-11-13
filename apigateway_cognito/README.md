@@ -49,15 +49,100 @@ cdk destroy
 
 ## Test
 
+### Deploy app
 
+Deploy your app by
 
+```bash
+cdk deploy
+```
 
-# Useful commands
+At the end of the build, you will find the lines that would like this:
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+```bash
+apigateway-cognito.PoolClientID = 1434jmfkokojdukrt8mxca91kdu
+apigateway-cognito.myAPIEndpoint8B0EED61 = https://kasksdfq.execute-api.us-east-1.amazonaws.com/prod/
+apigateway-cognito.UserPoolID = us-east-1_j3asdfa
+```
 
-Enjoy!
+Remember these parameters; we will use it later!
+
+### Make sure that the API is protected
+First, make sure that your api is indeed protected if you do not have right token to access.
+
+Try
+```
+curl -iX GET '<YOUR API GATEWAY ENDPOINT>/test/'
+```
+
+As expected, you will get `401` errors:
+```bash
+HTTP/1.1 401 Unauthorized
+```
+
+### Create a test user
+
+To test our API with tokens, we first need to create a test user.
+
+You can do it in either in the web browser GUI or from the command line. Below I show the two methods. You can choose whichever you like.
+
+#### Web browser GUI
+
+(coming soon)
+
+#### Command line
+
+Make sure that you have installed `AWS CLI` and set up correct credentials.
+
+Then, run
+```bash
+aws cognito-idp sign-up --client-id <YOUR CLIENT ID> --username test@google.com --password randomPW2019
+```
+
+Replace `--client-id`, `--username` and `--password` with your own ones.
+
+The newly created user must be "confirmed". To do it, run
+```bash
+aws cognito-idp admin-confirm-sign-up --user-pool-id <YOUR USER POOL ID> --username test@google.com
+```
+
+Replace `--user-pool-id` and `--username` with your own ones.
+
+### Log in and get token
+
+#### Web browser GUI
+
+(coming soon)
+
+#### Command line
+
+To log in and obtain tokens, run
+```bash
+aws cognito-idp initiate-auth --auth-flow USER_PASSWORD_AUTH --client-id <YOUR CLIENT ID> --auth-parameters USERNAME=test@google.com,PASSWORD=randomPW2019
+```
+
+Replace `--client-id`, `--username` and `--password` with your own ones.
+
+If successful, the returned json will look like
+```json
+{
+    "ChallengeParameters": {},
+    "AuthenticationResult": {
+        "AccessToken": "XXXX",
+        "ExpiresIn": 3600,
+        "TokenType": "Bearer",
+        "RefreshToken": "YYY",
+        "IdToken": "ZZZ"
+    }
+}
+```
+
+### Test API with right token
+Run
+```
+curl -iX GET '<YOUR API GATEWAY ENDPOINT>/test/' -H 'Authorization: <ID TOKEN>'
+```
+
+Now you should get `200` response, and you will see a nice `Hellow world!` message.
+
+That's it!
