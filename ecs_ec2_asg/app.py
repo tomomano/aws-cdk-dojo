@@ -44,8 +44,10 @@ class ECSCluster(core.Stack):
         )
         container = task_def.add_container(
             "CdkTutorialContainer",
-            image=ecs.ContainerImage.from_registry("amazonlinux"),
-            command=["sh", "-c", "sleep infinity"],
+            image=ecs.ContainerImage.from_asset(
+                os.path.join(os.path.dirname(__file__), "docker")
+            ),
+            command=["--cpu", "1", "--vm-bytes", "128M", "--timeout", "600s"], # simulated load, consuming 1 CPU and 128MB of RAM
             memory_reservation_mib=100,
         )
 
