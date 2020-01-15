@@ -19,6 +19,7 @@ cdk synth
 ```
 export AWS_ACCESS_KEY_ID=AKIAIOSFODNN7EXAMPLE
 export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
+export AWS_DEFAULT_REGION=us-east-1
 ```
 
 To deploy the app, run

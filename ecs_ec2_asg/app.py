@@ -24,22 +24,30 @@ class ECSCluster(core.Stack):
         )
 
         # step 2 - create the auto scaling resources
-        cluster.add_capacity(
-           'CdkTutorialASG',
+        asg = autoscaling.AutoScalingGroup(
+            self, "CdkTutorial_ASG",
             instance_type=ec2.InstanceType('t2.micro'),
             machine_image=ecs.EcsOptimizedImage.amazon_linux2(),
+            vpc=vpc,
             max_capacity=3,
             min_capacity=0,
         )
-        # asg = autoscaling.AutoScalingGroup(
-        #     self, "CdkTutorial_ASG",
-        #     instance_type=ec2.InstanceType('t2.micro'),
-        #     machine_image=ecs.EcsOptimizedImage.amazon_linux2(),
-        #     vpc=vpc,
-        #     max_capacity=3,
-        #     min_capacity=0
-        # )
-        # cluster.add_auto_scaling_group(asg)
+        asg.add_user_data(
+            f"echo ECS_CLUSTER={cluster.cluster_name} >> /etc/ecs/ecs.config"
+        )
+        cluster.add_auto_scaling_group(asg)
+
+        # step 3 - task definition
+        task_def = ecs.Ec2TaskDefinition(
+            self, "CdkTutorial_TaskDefinition",
+            network_mode=ecs.NetworkMode.BRIDGE,
+        )
+        container = task_def.add_container(
+            "CdkTutorialContainer",
+            image=ecs.ContainerImage.from_registry("amazonlinux"),
+            command=["sh", "-c", "sleep infinity"],
+            memory_reservation_mib=100,
+        )
 
 app = core.App()
 ECSCluster(
