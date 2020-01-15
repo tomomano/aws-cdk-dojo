@@ -48,7 +48,7 @@ class ECSCluster(core.Stack):
                 os.path.join(os.path.dirname(__file__), "docker")
             ),
             command=["--cpu", "1", "--vm-bytes", "128M", "--timeout", "300s"], # simulated load, consuming 1 CPU and 128MB of RAM
-            memory_reservation_mib=100,
+            memory_reservation_mib=256,
         )
 
 app = core.App()
