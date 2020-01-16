@@ -29,7 +29,7 @@ class ECSCluster(core.Stack):
             instance_type=ec2.InstanceType('t2.micro'),
             machine_image=ecs.EcsOptimizedImage.amazon_linux2(),
             vpc=vpc,
-            max_capacity=3,
+            max_capacity=10,
             min_capacity=0,
         )
         asg.add_user_data(

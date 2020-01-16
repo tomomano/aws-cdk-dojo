@@ -34,7 +34,7 @@ When you are done with the app, do not forget to destroy it:
 cdk destroy
 ```
 
-Finally, you must update the ECS configuration
+Finally, you must update the ECS configuration. Basically, this script updates "Instance Protection" property of the ASG, and add capacity provider to the cluster. This operation currently cannot be done through CDK. Thus, here I use a simple Python script to do this.
 
 ```
 export ASG_NAME<your asg name>
