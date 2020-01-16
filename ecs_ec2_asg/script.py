@@ -1,7 +1,7 @@
 import boto3
 import argparse
 
-def main(autoscaling_group_name: str, ecs_cluster_name: str, capacity_provider_name: str = "CapacityProvider"):
+def main(autoscaling_group_name: str, ecs_cluster_name: str):
     """
 
     """
@@ -23,6 +23,7 @@ def main(autoscaling_group_name: str, ecs_cluster_name: str, capacity_provider_n
     # next, add capacity provider
     client = boto3.client("ecs")
     print("Adding capacity provider to the ECS cluster...")
+    capacity_provider_name = ecs_cluster_name + "CapacityProvider"
     resp = client.create_capacity_provider(
         name=capacity_provider_name,
         autoScalingGroupProvider={
