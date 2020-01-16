@@ -1,5 +1,6 @@
-
 # ECS with EC2 autoscaling example
+
+**Caution!!** This project is incomplete, because it uses some of the AWS resources that are not implemented in CDK library. Use with care!
 
 ## Build
 ```
