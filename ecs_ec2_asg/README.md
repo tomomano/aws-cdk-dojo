@@ -33,3 +33,11 @@ When you are done with the app, do not forget to destroy it:
 ```
 cdk destroy
 ```
+
+Finally, you must update the ECS configuration
+
+```
+export ASG_NAME<your asg name>
+export CLUSTER_NAME=<your cluster name>
+python script.py $ASG_NAME $CLUSTER_NAME
+```
