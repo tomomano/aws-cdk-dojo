@@ -19,7 +19,7 @@ $ export AWS_SECRET_ACCESS_KEY=ABCDEFGHIJK
 
 ### 3. Set domain info by environmental variable
 ```bash
-$ export MY_DOMAIN=<mydomain.com>
+$ export DOMAIN_NAME=<mydomain.com>
 $ export CERTIFICATE_ARN=<your own value!>
 ```
 Replce the `<...>` values with your own settings.
@@ -48,3 +48,11 @@ cdk deploy
 ```bash
 cdk destroy
 ```
+
+## Testing
+
+* Go to your AWS console -> CloudFormation and verify that the stack is deployed successfully.
+* Go to your AWS console -> API Gateway and check that two API Gateway resources (`api1` and `api2`) is deployed.
+* Open your browser and type in `https://<DOMAIN_NAME>/api1`.
+  * You will see a message that says `Hello, CDK! You have hit /api1`
+* Likewise, try `https://<DOMAIN_NAME>/api2`
