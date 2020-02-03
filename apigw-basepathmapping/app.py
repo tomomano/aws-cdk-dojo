@@ -20,6 +20,7 @@ class FirstStack(core.Stack):
         super().__init__(scope, id, **kwargs)
 
         api1 = apigw.RestApi(self, 'api1')
+        api2 = apigw.RestApi(self, 'api2')
         domain = apigw.DomainName(
             self, "domain",
             domain_name=props.domain_name,
@@ -29,6 +30,7 @@ class FirstStack(core.Stack):
             endpoint_type=apigw.EndpointType.REGIONAL,
         )
         domain.add_base_path_mapping(api1, base_path="api1")
+        domain.add_base_path_mapping(api2, base_path="api2")
 
         route53.ARecord(
             self, "AliasRecord",
@@ -48,6 +50,7 @@ class FirstStack(core.Stack):
             code=_lambda.Code.from_asset('lambda'),
         )
         api1.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
+        api2.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
 
 app = core.App()
 FirstStack(
