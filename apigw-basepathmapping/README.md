@@ -40,7 +40,7 @@ cdk synth
 ## Deploy
 
 ```bash
-cdk deploy
+cdk deploy DomainStack FirstAPI SecondAPI
 ```
 
 ## Clean up
