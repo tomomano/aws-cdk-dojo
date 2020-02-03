@@ -10,17 +10,31 @@ import os
 from dataclasses import dataclass
 
 @dataclass
-class StackProps:
+class DomainStackProps:
     domain_name: str
     certificate_arn: str
 
-class FirstStack(core.Stack):
+handler_func = """
+import json
 
-    def __init__(self, scope: core.App, id: str, props: StackProps, **kwargs) -> None:
+def handler(event, context):
+    print('request: {}'.format(json.dumps(event)))
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'text/plain'
+        },
+        'body': 'Hello, CDK! You have hit {}'.format(event['path'])
+    }
+"""
+
+class DomainStack(core.Stack):
+    """
+    This stack defines a domain for API Gateway resources, and link it with Route53
+    """
+    def __init__(self, scope: core.App, id: str, props: DomainStackProps, **kwargs) -> None:
         super().__init__(scope, id, **kwargs)
 
-        api1 = apigw.RestApi(self, 'api1')
-        api2 = apigw.RestApi(self, 'api2')
         domain = apigw.DomainName(
             self, "domain",
             domain_name=props.domain_name,
@@ -29,8 +43,7 @@ class FirstStack(core.Stack):
             ),
             endpoint_type=apigw.EndpointType.REGIONAL,
         )
-        domain.add_base_path_mapping(api1, base_path="api1")
-        domain.add_base_path_mapping(api2, base_path="api2")
+        self.domain = domain
 
         route53.ARecord(
             self, "AliasRecord",
@@ -42,26 +55,69 @@ class FirstStack(core.Stack):
             )
         )
 
-        # handler for random request
+class FirstAPI(core.Stack):
+    """
+    First API, hosted under '/api1' base path
+    """
+    def __init__(self, scope: core.App, id: str, domain: apigw.DomainName, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        api = apigw.RestApi(self, 'api1')
+        domain.add_base_path_mapping(api, base_path="api1")
+
         hello_handler = _lambda.Function(
             self, 'LambdaHandler',
             runtime=_lambda.Runtime.PYTHON_3_7,
-            handler="hello.handler",
-            code=_lambda.Code.from_asset('lambda'),
+            handler="index.handler",
+            code=_lambda.Code.from_inline(handler_func),
         )
-        api1.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
-        api2.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
+        api.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
+
+class SecondAPI(core.Stack):
+    """
+    Second API, hosted under 'api2' base path
+    """
+    def __init__(self, scope: core.App, id: str, domain: apigw.DomainName, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        api = apigw.RestApi(self, 'api2')
+        domain.add_base_path_mapping(api, base_path="api2")
+
+        hello_handler = _lambda.Function(
+            self, 'LambdaHandler',
+            runtime=_lambda.Runtime.PYTHON_3_7,
+            handler="index.handler",
+            code=_lambda.Code.from_inline(handler_func),
+        )
+        api.root.add_method("GET", apigw.LambdaIntegration(hello_handler))
 
 app = core.App()
-FirstStack(
-    app, "FirstStack",
+domain_stack = DomainStack(
+    app, "DomainStack",
     env={
         "region": "us-east-1",
-        "account": os.environ["CDK_DEFAULT_ACCOUNT"], 
+        "account": os.environ["CDK_DEFAULT_ACCOUNT"],
     },
-    props=StackProps(
+    props=DomainStackProps(
         domain_name=os.environ["DOMAIN_NAME"],
         certificate_arn=os.environ["CERTIFICATE_ARN"],
     )
 )
+
+first_api = FirstAPI(app, "FirstAPI",
+    env={
+        "region": "us-east-1",
+        "account": os.environ["CDK_DEFAULT_ACCOUNT"],
+    },
+    domain=domain_stack.domain,
+)
+
+second_api = SecondAPI(app, "SecondAPI",
+    env={
+        "region": "us-east-1",
+        "account": os.environ["CDK_DEFAULT_ACCOUNT"],
+    },
+    domain=domain_stack.domain,
+)
+
 app.synth()
